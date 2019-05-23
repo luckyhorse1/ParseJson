@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# 自己配置的
+.sln
+.vcxproj
+.vcxproj.filter
+.vcxproj.user
