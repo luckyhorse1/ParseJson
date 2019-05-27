@@ -63,25 +63,25 @@ static void test_parse_false() {
 }
 
 static void test_parse_number() {
-	//TEST_NUMBER(0.0, "0");
-	//TEST_NUMBER(0.0, "-0");
-	//TEST_NUMBER(0.0, "-0.0");
-	//TEST_NUMBER(1.0, "1");
-	//TEST_NUMBER(-1.0, "-1");
-	//TEST_NUMBER(1.5, "1.5");
-	//TEST_NUMBER(-1.5, "-1.5");
-	//TEST_NUMBER(3.1416, "3.1416");
-	//TEST_NUMBER(1E10, "1E10");
-	//TEST_NUMBER(1e10, "1e10");
-	//TEST_NUMBER(1E+10, "1E+10");
-	//TEST_NUMBER(1E-10, "1E-10");
-	//TEST_NUMBER(-1E10, "-1E10");
-	//TEST_NUMBER(-1e10, "-1e10");
-	//TEST_NUMBER(-1E+10, "-1E+10");
-	//TEST_NUMBER(-1E-10, "-1E-10");
-	//TEST_NUMBER(1.234E+10, "1.234E+10");
-	//TEST_NUMBER(1.234E-10, "1.234E-10");
-	//TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
+	TEST_NUMBER(0.0, "0");
+	TEST_NUMBER(0.0, "-0");
+	TEST_NUMBER(0.0, "-0.0");
+	TEST_NUMBER(1.0, "1");
+	TEST_NUMBER(-1.0, "-1");
+	TEST_NUMBER(1.5, "1.5");
+	TEST_NUMBER(-1.5, "-1.5");
+	TEST_NUMBER(3.1416, "3.1416");
+	TEST_NUMBER(1E10, "1E10");
+	TEST_NUMBER(1e10, "1e10");
+	TEST_NUMBER(1E+10, "1E+10");
+	TEST_NUMBER(1E-10, "1E-10");
+	TEST_NUMBER(-1E10, "-1E10");
+	TEST_NUMBER(-1e10, "-1e10");
+	TEST_NUMBER(-1E+10, "-1E+10");
+	TEST_NUMBER(-1E-10, "-1E-10");
+	TEST_NUMBER(1.234E+10, "1.234E+10");
+	TEST_NUMBER(1.234E-10, "1.234E-10");
+	TEST_NUMBER(0.0, "1e-10000"); /* must underflow */
 }
 
 static void test_parse_expect_value() {//¼ì²â×Ö·û´®ÊÇ·ñÖ»ÓÐ¿Õ°×
@@ -93,7 +93,7 @@ static void test_parse_invalid_value() {
 	TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "nul");
 	TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "?");
 
-	#if 0
+	#if 1
 		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "+0");
 		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "+1");
 		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, ".123");
@@ -116,7 +116,7 @@ static void test_parse() {
 	//test_parse_number();
 
 	//test_parse_expect_value();
-	//test_parse_invalid_value();
+	test_parse_invalid_value();
 	//test_root_not_singular();
 }
 

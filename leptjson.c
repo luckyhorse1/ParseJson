@@ -1,6 +1,7 @@
 #include "leptjson.h"
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 
 #define EXPECT(c, ch) do{ assert(*c->json == ch); c->json++;}while(0)
 
@@ -44,111 +45,13 @@ static int lept_parse_false(lept_context* c, lept_value* v) {
 }
 
 static int lept_parse_number(lept_context* c, lept_value* v) {
-	int sign = 1;
-	double left = 0.0;
-	double right = 0.0;
-	int left_num = 0;//左边数字的位数
-	int e = 0;
-	int e_num = 0;//e的位数
-	int e_sign = 1;
-
-	// 确定数字的符号
-	if (c->json[0] == '-') {
-		sign = -1;
-		c->json++;
-	}
-	
-	//确定left
-	if (c->json[0] < '0' || c->json[0] > '9') return LEPT_PARSE_INVALID_VALUE; // 错误处理：字符串不是数字开头，直接返回无效
-	else if (c->json[0] == '0') {// 以0开头，进行特殊处理
-		if (c->json[1] == '\0') {//以0开头，后面没有字符，直接返回0
-			v->type = LEPT_NUMBER;
-			v->n = 0.0;
-			c->json++;
-			return LEPT_PARSE_OK;
-		}
-		if (c->json[1] != '.') return LEPT_PARSE_INVALID_VALUE;//错误处理：如果以0开头，而后面不跟小数点，则认为是错误的
-		c->json++;//c指针现在指向小数点
-	}
-	else {//以非0数字开头
-		int count = 0;
-		const char* p = c->json;
-		while (*p >= '0' && *p <= '9') {
-			p++;
-			count++;
-		}
-		int i;
-		for (i = 0; i < count; i++) {
-			left += (c->json[i] - '0') * pow(10, count - i - 1);
-		}
-		c->json += count;
-		left_num = count;
-	}
-
-	if (c->json[0] == '\0') {
-		v->type = LEPT_NUMBER;
-		v->n = sign*left;
-		return LEPT_PARSE_OK;
-	}
-
-	//确定right
-	if ( c->json[0] == '.') {
-		c->json++;
-		int count = 0;
-		const char* p = c->json;
-		while (*p >= '0' && *p <= '9') {
-			count++;
-			right += (*p - '0') * pow(10, -count);
-			p++;
-		}
-		if (count == 0) return LEPT_PARSE_INVALID_VALUE;//前一个字母是小数点，后面的字母不是数字
-		c->json += count;
-	}
-	else if (c->json[0] != 'e' && c->json[0] != 'E') {
+	char* end;
+	v->n = strtod(c->json, &end);
+	if (c->json == end) {
 		return LEPT_PARSE_INVALID_VALUE;
 	}
-
-	if (c->json[0] == '\0') {
-		v->type = LEPT_NUMBER;
-		v->n = sign*(left+right);
-		return LEPT_PARSE_OK;
-	}
-	
-	//确定e
-	if (c->json[0] == 'e' || c->json[0] == 'E') {
-		c->json++;
-		if (c->json[0] == '+') {
-			e_sign = 1;
-			c->json++;
-		}
-		else if (c->json[0] == '-') {
-			e_sign = -1;
-			c->json++;
-		}
-
-		int count = 0;
-		const char* p = c->json;
-		while (*p >= '0' && *p <= '9') {
-			p++;
-			count++;
-		}
-		if (*p != '\0') return LEPT_PARSE_INVALID_VALUE;
-		else if (count + left_num >= 309) return LEPT_PARSE_NUMBER_TOO_BIG;
-		else {
-			int i;
-			for (i = 0; i < count; i++) {
-				e += (c->json[i] - '0') * pow(10, count-i-1);
-			}
-			c->json += count;
-			e_num = count;
-		}
-	}
-	else{
-		return LEPT_PARSE_INVALID_VALUE;
-	}
-
+	c->json = end;
 	v->type = LEPT_NUMBER;
-	v->n = sign*(left + right) * pow(10, e_sign*e);
 	return LEPT_PARSE_OK;
 }
 
