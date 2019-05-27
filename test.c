@@ -92,6 +92,17 @@ static void test_parse_expect_value() {//¼ì²â×Ö·û´®ÊÇ·ñÖ»ÓÐ¿Õ°×
 static void test_parse_invalid_value() {
 	TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "nul");
 	TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "?");
+
+	#if 0
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "+0");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "+1");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, ".123");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "1.");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "INF");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "inf");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "NAN");
+		TEST_ERROR(LEPT_PARSE_INVALID_VALUE, "nan");
+	#endif
 }
 
 static void test_root_not_singular() {
@@ -100,12 +111,13 @@ static void test_root_not_singular() {
 
 static void test_parse() {
 	//test_parse_null();
-	//test_parse_expect_value();
-	//test_parse_invalid_value();
-	//test_root_not_singular();
 	//test_parse_true();
 	//test_parse_false();
 	//test_parse_number();
+
+	//test_parse_expect_value();
+	test_parse_invalid_value();
+	//test_root_not_singular();
 }
 
 int main() {
