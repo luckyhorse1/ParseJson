@@ -1,11 +1,15 @@
 #ifndef LEPTJSON_H__
 #define LEPTJSON_H__
+#include <stddef.h>
 
 typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
 
 typedef struct {
+	union {
+		struct { char* s; size_t len; } s;
+		double n;
+	} u;
 	lept_type type;
-	double n;
 }lept_value;
 
 int lept_parse(lept_value* v, const char* json);
