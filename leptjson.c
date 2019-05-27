@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define EXPECT(c, ch) do{ assert(*c->json == ch); c->json++;}while(0)
+#define EXPECT(c, ch) do{ assert(*c->json == ch);}while(0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
 #define ISDIGIT1TO9(ch) ((ch) >= '1' && (ch) <= '9')
 
@@ -20,30 +20,14 @@ static void lept_parse_whitespace(lept_context* c) {
 	c->json = p;
 }
 
-static int lept_parse_null(lept_context* c, lept_value* v) {
-	EXPECT(c, 'n');// 首先判断顶第一个字母对不对
-	if (c->json[0] != 'u' || c->json[1] != 'l' || c->json[2] != 'l')//接下来判定后面的每一个字符对不对
-		return LEPT_PARSE_INVALID_VALUE;
-	c->json += 3;// 这句话没看懂
-	v->type = LEPT_NULL;
-	return LEPT_PARSE_OK;
-}
-
-static int lept_parse_true(lept_context* c, lept_value* v) {
-	EXPECT(c, 't');
-	if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e')
-		return LEPT_PARSE_INVALID_VALUE;
-	c->json += 3;
-	v->type = LEPT_TRUE;
-	return LEPT_PARSE_OK;
-}
-
-static int lept_parse_false(lept_context* c, lept_value* v) {
-	EXPECT(c, 'f');
-	if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' || c->json[3] != 'e')
-		return LEPT_PARSE_INVALID_VALUE;
-	c->json += 4;
-	v->type = LEPT_FALSE;
+static int lept_parse_litral(lept_context* c, lept_value* v, char* literal, lept_type type) {
+	int i;
+	EXPECT(c, literal[0]);
+	for (i = 0; literal[i]; i++) {
+		if (c->json[i] != literal[i]) return LEPT_PARSE_INVALID_VALUE;
+	}
+	c->json += i;
+	v->type = type;
 	return LEPT_PARSE_OK;
 }
 
@@ -78,9 +62,9 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
 
 static int lept_parse_value(lept_context* c, lept_value* v) {
 	switch (*c->json){
-		case 'n': return lept_parse_null(c, v);
-		case 't': return lept_parse_true(c, v);
-		case 'f': return lept_parse_false(c, v);
+		case 'n': return lept_parse_litral(c, v, "null", LEPT_NULL);
+		case 't': return lept_parse_litral(c, v, "true", LEPT_TRUE);
+		case 'f': return lept_parse_litral(c, v, "false", LEPT_FALSE);
 		case '\0': return LEPT_PARSE_EXPECT_VALUE;
 		default: return lept_parse_number(c, v);
 	}
