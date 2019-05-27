@@ -106,7 +106,7 @@ static void test_parse_invalid_value() {
 }
 
 static void test_root_not_singular() {
-	TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "n a");
+	TEST_ERROR(LEPT_PARSE_ROOT_NOT_SINGULAR, "null a");
 }
 
 static void test_parse() {
@@ -116,7 +116,7 @@ static void test_parse() {
 	//test_parse_number();
 
 	//test_parse_expect_value();
-	test_parse_invalid_value();
+	//test_parse_invalid_value();
 	//test_root_not_singular();
 }
 

@@ -18,7 +18,7 @@ static void lept_parse_whitespace(lept_context* c) {
 
 static int lept_parse_null(lept_context* c, lept_value* v) {
 	EXPECT(c, 'n');// 首先判断顶第一个字母对不对
-	if (c->json[0] != 'u' || c->json[1] != 'l' || c->json[2] != 'l' || c->json[3] != '\0')//接下来判定后面的每一个字符对不对
+	if (c->json[0] != 'u' || c->json[1] != 'l' || c->json[2] != 'l')//接下来判定后面的每一个字符对不对
 		return LEPT_PARSE_INVALID_VALUE;
 	c->json += 3;// 这句话没看懂
 	v->type = LEPT_NULL;
@@ -27,7 +27,7 @@ static int lept_parse_null(lept_context* c, lept_value* v) {
 
 static int lept_parse_true(lept_context* c, lept_value* v) {
 	EXPECT(c, 't');
-	if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e' || c->json[3] != '\0')
+	if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e')
 		return LEPT_PARSE_INVALID_VALUE;
 	c->json += 3;
 	v->type = LEPT_TRUE;
@@ -36,7 +36,7 @@ static int lept_parse_true(lept_context* c, lept_value* v) {
 
 static int lept_parse_false(lept_context* c, lept_value* v) {
 	EXPECT(c, 'f');
-	if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' || c->json[3] != 'e' || c->json[4] !='\0')
+	if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' || c->json[3] != 'e')
 		return LEPT_PARSE_INVALID_VALUE;
 	c->json += 4;
 	v->type = LEPT_FALSE;
@@ -165,26 +165,20 @@ static int lept_parse_value(lept_context* c, lept_value* v) {
 
 int lept_parse(lept_value* v, const char* json) {
 	lept_context c;
+	int ret;
 	assert(v != NULL);
 	c.json = json;
 	v->type = LEPT_NULL;
 	lept_parse_whitespace(&c);
-	
-	//这段代码的目的：检测是否有两个字符串，如果只有一个字符串，则去掉后面的空白
-	const char *p = (&c)->json;
-	while (*p != ' ' && *p != '\t' && *p != '\r' && *p != '\n' && *p != '\0')
-		p++;
-	if(*p != '\0') {
-		char* q = p;//标记第一个空白的位置
-		while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n')
-			p++;
-		if (*p != '\0') return LEPT_PARSE_ROOT_NOT_SINGULAR;
-		else {
-			*q = '\0';//去掉后面空白
-			lept_parse_value(&c, v);
+
+	if((ret=lept_parse_value(&c, v))== LEPT_PARSE_OK) {
+		lept_parse_whitespace(&c);
+		if (c.json[0] != '\0') {
+			v->type = LEPT_NULL;
+			ret = LEPT_PARSE_ROOT_NOT_SINGULAR;
 		}
 	}
-	return lept_parse_value(&c, v);
+	return ret;
 }
 
 lept_type lept_get_type(const lept_value* v) {
