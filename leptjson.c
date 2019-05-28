@@ -1,8 +1,8 @@
 #include "leptjson.h"
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h>
-#include <errno.h>
+#include <assert.h>  /*assert()*/
+#include <math.h>  /*HUGE_VAL*/
+#include <stdlib.h>  /*NULL, strtod()*/
+#include <errno.h>  /*errno, ERANGE*/
 
 #define EXPECT(c, ch) do{ assert(*c->json == ch);}while(0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
@@ -21,7 +21,7 @@ static void lept_parse_whitespace(lept_context* c) {
 }
 
 static int lept_parse_litral(lept_context* c, lept_value* v, char* literal, lept_type type) {
-	int i;
+	size_t i;
 	EXPECT(c, literal[0]);
 	for (i = 0; literal[i]; i++) {
 		if (c->json[i] != literal[i]) return LEPT_PARSE_INVALID_VALUE;
