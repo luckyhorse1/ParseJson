@@ -1,8 +1,9 @@
 #include "leptjson.h"
 #include <assert.h>  /*assert()*/
 #include <math.h>  /*HUGE_VAL*/
-#include <stdlib.h>  /*NULL, strtod()*/
+#include <stdlib.h>  /*NULL, strtod(), free()*/
 #include <errno.h>  /*errno, ERANGE*/
+#include <string.h> /*memcpy()*/
 
 #define EXPECT(c, ch) do{ assert(*c->json == ch);}while(0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
@@ -94,7 +95,50 @@ lept_type lept_get_type(const lept_value* v) {
 	return v->type;
 }
 
-double lept_get_number(const lept_value* v) {
+void lept_free(lept_value* v) {
 	assert(v != NULL);
+	if (v->type == LEPT_STRING) free(v->u.s.s);
+	v->type = LEPT_NULL;
+}
+
+int lept_get_boolean(const lept_value* v) {
+	//TODO
+	return 0;
+}
+
+void lept_set_boolean(int b) {
+	//TODO
+}
+
+double lept_get_number(const lept_value* v) {
+	assert(v != NULL && v->type == LEPT_NUMBER);
 	return v->u.n;
+}
+
+void lept_set_number(lept_value* v, double n) {
+	//TODO
+	/*assert(v != NULL);
+	if (v->type == LEPT_NUMBER) {
+		v->u.n = n;
+	}*/
+}
+
+const char* lept_get_string(const lept_value* v) {
+	assert(v != NULL && v->type == LEPT_STRING);
+	return v->u.s.s;
+}
+
+size_t lept_get_string_length(const lept_value* v) {
+	assert(v != NULL && v->type == LEPT_STRING);
+	return v->u.s.len;
+}
+
+void lept_set_string(lept_value* v, const char* s, size_t len) {
+	assert(v != NULL && (s != NULL || len == 0)); //不存在len>0，而s为NULL的情况
+	lept_free(v);
+	v->u.s.s = (char*)malloc(len + 1);
+	memcpy(v->u.s.s, s, len);
+	v->u.s.s[len] = '\0';
+	v->type == LEPT_STRING;
+	v->u.s.len = len;
 }
