@@ -95,10 +95,10 @@ lept_type lept_get_type(const lept_value* v) {
 	return v->type;
 }
 
-void lept_free(lept_value* v) {
+void lept_free(lept_value* v) {//这个函数的作用：释放v所占的内存，包括字符串，对象和数组
 	assert(v != NULL);
 	if (v->type == LEPT_STRING) free(v->u.s.s);
-	v->type = LEPT_NULL;
+	v->type = LEPT_NULL;//释放内存后，把v的类型置空，目的是为了避免重复释放
 }
 
 int lept_get_boolean(const lept_value* v) {
