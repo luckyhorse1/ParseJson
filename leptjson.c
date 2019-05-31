@@ -140,6 +140,6 @@ void lept_set_string(lept_value* v, const char* s, size_t len) {
 	v->u.s.s = (char*)malloc(len + 1);
 	memcpy(v->u.s.s, s, len);//memcpy的入参有哪些要求，以及在临界条件下会出现什么效果
 	v->u.s.s[len] = '\0';
-	v->type == LEPT_STRING;
+	v->type = LEPT_STRING;
 	v->u.s.len = len;
 }
