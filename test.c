@@ -22,6 +22,7 @@ static int test_pass = 0;
 
 #define EXPECT_EQ_DOUBLE(expect, actual) EXPECT_EQ_BASE((expect) == (actual), expect, actual, "%.17g")
 
+//这里为什么使用sizeof而不是strlen？sizeof获取的是该字符串占用的内存大小，包括'\0'。而strlen获取的是第一个字符到'\0'之前的字符个数，不包括'\0'。
 #define EXPECT_EQ_STRING(expect, actual, alength)\
 	EXPECT_EQ_BASE((sizeof(expect)-1 == alength) && memcmp(expect, actual, alength)==0, expect, actual, "%s")
 
