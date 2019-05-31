@@ -134,10 +134,10 @@ size_t lept_get_string_length(const lept_value* v) {
 }
 
 void lept_set_string(lept_value* v, const char* s, size_t len) {
-	assert(v != NULL && (s != NULL || len == 0)); //不存在len>0，而s为NULL的情况
+	assert(v != NULL && (s != NULL || len == 0)); //这里的代码感觉很难看得懂，重要的原因在于memcpy函数的要求
 	lept_free(v);
 	v->u.s.s = (char*)malloc(len + 1);
-	memcpy(v->u.s.s, s, len);
+	memcpy(v->u.s.s, s, len);//memcpy的入参有哪些要求，以及在临界条件下会出现什么效果
 	v->u.s.s[len] = '\0';
 	v->type == LEPT_STRING;
 	v->u.s.len = len;
