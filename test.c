@@ -1,5 +1,7 @@
-#include <stdio.h>
+#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
+#include <crtdbg.h>|
+#include <stdio.h>
 #include "leptjson.h"
 #include <string.h>
 
@@ -177,7 +179,7 @@ static void test_parse() {
 	//test_parse_number_too_big();
 	//test_parse_missing_quotation_mark();
 	//test_parse_invalid_string_escape();
-	test_parse_invalid_string_char();
+	//test_parse_invalid_string_char();
 }
 
 static void test_access_null() {
@@ -191,11 +193,12 @@ static void test_access_null() {
 static void test_access_boolean() {
 	lept_value v;
 	lept_init(&v);
+	lept_set_string(&v, "a", 1);
 	lept_set_boolean(&v, 1);
 	EXPECT_EQ_TRUE(lept_get_boolean(&v));
 	lept_set_boolean(&v, 0);
 	EXPECT_EQ_FALSE(lept_get_boolean(&v));
-	lept_free(&v);
+	//lept_free(&v);
 }
 
 static void test_access_number() {
@@ -217,11 +220,13 @@ static void test_access_string() {
 }
 
 static void test_access() {
-	test_access_null();
+	//test_access_null();
+	test_access_boolean();
 	//test_access_number();
 }
 
 int main() {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//test_parse();
 	test_access();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);

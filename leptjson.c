@@ -1,7 +1,9 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>  /*NULL, strtod(), free()*/
+#include <crtdbg.h>
 #include "leptjson.h"
 #include <assert.h>  /*assert()*/
 #include <math.h>  /*HUGE_VAL*/
-#include <stdlib.h>  /*NULL, strtod(), free()*/
 #include <errno.h>  /*errno, ERANGE*/
 #include <string.h> /*memcpy()*/
 
@@ -178,7 +180,7 @@ int lept_get_boolean(const lept_value* v) {
 
 void lept_set_boolean(lept_value* v, int b) {
 	assert(v != NULL);
-	lept_free(v);
+	//lept_free(v);
 	v->type = b ? LEPT_TRUE : LEPT_FALSE;
 }
 
