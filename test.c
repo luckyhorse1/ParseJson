@@ -35,6 +35,15 @@ static int test_pass = 0;
 		EXPECT_EQ_DOUBLE(expect, lept_get_number(&v));\
 	} while(0)
 
+#define TEST_STRING(expect, json)\
+	do{\
+		lept_value v;\
+		v.type = LEPT_FALSE;\
+		EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, json));\
+		EXPECT_EQ_INT(LEPT_STRING, lept_get_type(&v));\
+		EXPECT_EQ_STRING(expect, lept_get_string(&v), lept_get_string_length(&v));\
+	}while(0)
+
 #define TEST_ERROR(error, json)\
 	do{\
 		lept_value v;\
@@ -130,11 +139,17 @@ static void test_parse_number_too_big() {
 	TEST_ERROR(LEPT_PARSE_NUMBER_TOO_BIG, "-1e309");
 }
 
+static void test_parse_string() {
+	TEST_STRING("abc", "\"abc\"");
+	TEST_STRING("", "\"\"");
+}
+
 static void test_parse() {
 	//test_parse_null();
 	//test_parse_true();
 	//test_parse_false();
-	test_parse_number();
+	//test_parse_number();
+	test_parse_string();
 
 	//test_parse_expect_value();
 	//test_parse_invalid_value();
@@ -152,8 +167,8 @@ static void test_access_string() {
 }
 
 int main() {
-	//test_parse();
-	test_access_string();
+	test_parse();
+	//test_access_string();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

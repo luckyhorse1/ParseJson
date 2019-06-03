@@ -5,12 +5,13 @@
 #include <errno.h>  /*errno, ERANGE*/
 #include <string.h> /*memcpy()*/
 
-#define EXPECT(c, ch) do{ assert(*c->json == ch);}while(0)
+#define EXPECT(c, ch) do{ assert(*c->json == ch); c->json++;}while(0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
 #define ISDIGIT1TO9(ch) ((ch) >= '1' && (ch) <= '9')
 #ifndef LEPT_PARSE_STACK_INIT_SIZE
 #define LEPT_PARSE_STACK_INIT_SIZE 256
 #endif // LEPT_PARSE_STACK_INIT_SIZE
+#define PUTC(c, ch) do{ *(char*)lept_context_push(c, sizeof(char)) = (ch);}while(0)
 
 
 typedef struct {
@@ -48,8 +49,8 @@ static void lept_parse_whitespace(lept_context* c) {
 static int lept_parse_litral(lept_context* c, lept_value* v, char* literal, lept_type type) {
 	size_t i;
 	EXPECT(c, literal[0]);
-	for (i = 0; literal[i]; i++) {
-		if (c->json[i] != literal[i]) return LEPT_PARSE_INVALID_VALUE;
+	for (i = 0; literal[i+1]; i++) {
+		if (c->json[i] != literal[i+1]) return LEPT_PARSE_INVALID_VALUE;
 	}
 	c->json += i;
 	v->type = type;
@@ -85,8 +86,30 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
 	return LEPT_PARSE_OK;
 }
 
+static int lept_parse_string(lept_context* c, lept_value* v) {
+	size_t head = c->top, len;
+	EXPECT(c, '"');
+	const char* p = c->json;
+	while (1) {
+		char ch = *p++;
+		switch (ch){
+		case '"':
+			len = c->top - head;
+			lept_set_string(v, (const char*)lept_context_pop(c, len), len);
+			v->type = LEPT_STRING;
+			c->json = p;
+			return LEPT_PARSE_OK;
+		case '\0':
+			return LEPT_PARSE_MISS_QUOTATION_MARK;
+		default:
+			PUTC(c, ch);
+		}
+	}
+}
+
 static int lept_parse_value(lept_context* c, lept_value* v) {
 	switch (*c->json){
+		case '"': return lept_parse_string(c,v);
 		case 'n': return lept_parse_litral(c, v, "null", LEPT_NULL);
 		case 't': return lept_parse_litral(c, v, "true", LEPT_TRUE);
 		case 'f': return lept_parse_litral(c, v, "false", LEPT_FALSE);
