@@ -142,6 +142,11 @@ static void test_parse_number_too_big() {
 	TEST_ERROR(LEPT_PARSE_NUMBER_TOO_BIG, "-1e309");
 }
 
+static void test_parse_missing_quotation_mark() {
+	TEST_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK, "\"");
+	TEST_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK, "\"abc");
+}
+
 static void test_parse_string() {
 	TEST_STRING("abc", "\"abc\"");
 	TEST_STRING("", "\"\"");
@@ -152,12 +157,13 @@ static void test_parse() {
 	//test_parse_true();
 	//test_parse_false();
 	//test_parse_number();
-	test_parse_string();
+	//test_parse_string();
 
 	//test_parse_expect_value();
 	//test_parse_invalid_value();
 	//test_parse_root_not_singular();
 	//test_parse_number_too_big();
+	test_parse_missing_quotation_mark();
 }
 
 static void test_access_string() {
