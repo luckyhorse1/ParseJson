@@ -26,6 +26,9 @@ static int test_pass = 0;
 #define EXPECT_EQ_STRING(expect, actual, alength)\
 	EXPECT_EQ_BASE((sizeof(expect)-1 == alength) && memcmp(expect, actual, alength)==0, expect, actual, "%s")
 
+#define EXPECT_EQ_TRUE(actual)  EXPECT_EQ_BASE((actual)!=0, "true", "false", "%s")
+#define EXPECT_EQ_FALSE(actual)  EXPECT_EQ_BASE((actual)==0, "false", "true", "%s")
+
 #define TEST_NUMBER(expect, json)\
 	do{\
 		lept_value v;\
@@ -164,11 +167,23 @@ static void test_access_string() {
 	EXPECT_EQ_STRING("", lept_get_string(&v), lept_get_string_length(&v));
 	lept_set_string(&v, "Hello", 5);
 	EXPECT_EQ_STRING("Hello", lept_get_string(&v), lept_get_string_length(&v));
+	lept_free(&v);
+}
+
+static void test_access_boolean() {
+	lept_value v;
+	lept_init(&v);
+	lept_set_boolean(&v, 1);
+	EXPECT_EQ_TRUE(lept_get_boolean(&v));
+	lept_set_boolean(&v, 0);
+	EXPECT_EQ_FALSE(lept_get_boolean(&v));
+	lept_free(&v);
 }
 
 int main() {
-	test_parse();
+	//test_parse();
 	//test_access_string();
+	test_access_boolean();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
