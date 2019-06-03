@@ -180,16 +180,6 @@ static void test_parse() {
 	test_parse_invalid_string_char();
 }
 
-static void test_access_string() {
-	lept_value v;
-	lept_init(&v);
-	lept_set_string(&v, "", 0);
-	EXPECT_EQ_STRING("", lept_get_string(&v), lept_get_string_length(&v));
-	lept_set_string(&v, "Hello", 5);
-	EXPECT_EQ_STRING("Hello", lept_get_string(&v), lept_get_string_length(&v));
-	lept_free(&v);
-}
-
 static void test_access_boolean() {
 	lept_value v;
 	lept_init(&v);
@@ -200,10 +190,31 @@ static void test_access_boolean() {
 	lept_free(&v);
 }
 
+static void test_access_number() {
+	lept_value v;
+	lept_init(&v);
+	lept_set_number(&v, 2.0);
+	EXPECT_EQ_DOUBLE(2.0, lept_get_number(&v));
+	lept_free(&v);
+}
+
+static void test_access_string() {
+	lept_value v;
+	lept_init(&v);
+	lept_set_string(&v, "", 0);
+	EXPECT_EQ_STRING("", lept_get_string(&v), lept_get_string_length(&v));
+	lept_set_string(&v, "Hello", 5);
+	EXPECT_EQ_STRING("Hello", lept_get_string(&v), lept_get_string_length(&v));
+	lept_free(&v);
+}
+
+static void test_access() {
+	test_access_number();
+}
+
 int main() {
-	test_parse();
-	//test_access_string();
-	//test_access_boolean();
+	//test_parse();
+	test_access();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
