@@ -14,10 +14,11 @@
 #define PUTC(c, ch) do{ *(char*)lept_context_push(c, sizeof(char)) = (ch);}while(0)
 
 
+//为什么使用堆栈作为缓冲区，不能直接使用char*吗？为什么下面的json不需要使用realloc？
 typedef struct {
 	const char* json;// 这里使用char* ，相当于说json是一个指针变量，指向一个字符。可以说他是一个字符串
 	char* stack;
-	size_t size, top;
+	size_t size, top;//为什么stack可以扩展，所以top不能使用指针？
 }lept_context;
 
 
