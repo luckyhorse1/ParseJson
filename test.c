@@ -142,14 +142,26 @@ static void test_parse_number_too_big() {
 	TEST_ERROR(LEPT_PARSE_NUMBER_TOO_BIG, "-1e309");
 }
 
+static void test_parse_string() {
+	TEST_STRING("abc", "\"abc\"");
+	TEST_STRING("", "\"\"");
+}
+
 static void test_parse_missing_quotation_mark() {
 	TEST_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK, "\"");
 	TEST_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK, "\"abc");
 }
 
-static void test_parse_string() {
-	TEST_STRING("abc", "\"abc\"");
-	TEST_STRING("", "\"\"");
+static void test_parse_invalid_string_escape() {
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\v\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\'\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\0\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\x12\"");
+}
+
+static void test_parse_invalid_string_char() {
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_CHAR, "\"\x01\"");
+	TEST_ERROR(LEPT_PARSE_INVALID_STRING_CHAR, "\"\x1F\"");
 }
 
 static void test_parse() {
@@ -163,7 +175,9 @@ static void test_parse() {
 	//test_parse_invalid_value();
 	//test_parse_root_not_singular();
 	//test_parse_number_too_big();
-	test_parse_missing_quotation_mark();
+	//test_parse_missing_quotation_mark();
+	//test_parse_invalid_string_escape();
+	test_parse_invalid_string_char();
 }
 
 static void test_access_string() {
@@ -187,9 +201,9 @@ static void test_access_boolean() {
 }
 
 int main() {
-	//test_parse();
+	test_parse();
 	//test_access_string();
-	test_access_boolean();
+	//test_access_boolean();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
