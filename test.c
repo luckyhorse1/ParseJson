@@ -180,6 +180,14 @@ static void test_parse() {
 	test_parse_invalid_string_char();
 }
 
+static void test_access_null() {
+	lept_value v;
+	lept_init(&v);
+	lept_set_null(&v);
+	EXPECT_EQ_INT(LEPT_NULL, lept_get_type(&v));
+	lept_free(&v);
+}
+
 static void test_access_boolean() {
 	lept_value v;
 	lept_init(&v);
@@ -209,7 +217,8 @@ static void test_access_string() {
 }
 
 static void test_access() {
-	test_access_number();
+	test_access_null();
+	//test_access_number();
 }
 
 int main() {
