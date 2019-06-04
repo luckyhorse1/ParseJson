@@ -89,8 +89,20 @@ static int lept_parse_number(lept_context* c, lept_value* v) {
 	return LEPT_PARSE_OK;
 }
 
+#define STRING_ERROR(ret) do{c->top = head; return ret;}while(0)
+
+static const char* lept_parse_hex4(const char* p, unsigned u) {
+	//TODO
+	return p;
+}
+
+static void lept_encode_utf8(lept_context* c, unsigned u) {
+	//TODO
+}
+
 static int lept_parse_string(lept_context* c, lept_value* v) {
 	size_t head = c->top, len;
+	unsigned u;
 	EXPECT(c, '\"');
 	const char* p = c->json;
 	while (1) {
@@ -111,17 +123,18 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
 			case 'n"': PUTC(c, '\n'); break;
 			case 'r"': PUTC(c, '\r'); break;
 			case 't': PUTC(c, '\t'); break;
+			case 'u':
+				if (!(p = lept_parse_hex4(p, &u))) STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX);
+				lept_encode_utf8(c,u);
+				break;
 			default:
-				c->top = head;//该语句是避免无效的字符进入缓冲区
-				return LEPT_PARSE_INVALID_STRING_ESCAPE;
+				STRING_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE);//表示无效的转义字符
 			}
 		case '\0':
-			c->top = head;
-			return LEPT_PARSE_MISS_QUOTATION_MARK;
+			STRING_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK);//表示缺少标记位（即双引号）
 		default:
-			if ((unsigned char)ch < 0x20) {
-				c->top = head;
-				return LEPT_PARSE_INVALID_STRING_CHAR;
+			if ((unsigned char)ch < 0x20) {//在0-31的范围内是不合法的
+				STRING_ERROR(LEPT_PARSE_INVALID_STRING_CHAR);
 			}
 			PUTC(c, ch);
 		}

@@ -20,10 +20,13 @@ enum {
 	LEPT_PARSE_NUMBER_TOO_BIG,
 	LEPT_PARSE_MISS_QUOTATION_MARK,
 	LEPT_PARSE_INVALID_STRING_ESCAPE,
-	LEPT_PARSE_INVALID_STRING_CHAR
+	LEPT_PARSE_INVALID_STRING_CHAR,
+	LEPT_PARSE_INVALID_UNICODE_HEX
 };
 
 #define lept_init(v) do{ (v)->type = LEPT_NULL; } while(0) //初始化的作用：在所有的set和get函数中，第一个就是对v进行判空，所以v一定要初始化
+
+static int lept_parse_string(lept_context* c, lept_value* v);
 
 int lept_parse(lept_value* v, const char* json);
 
