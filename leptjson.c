@@ -276,3 +276,14 @@ void lept_set_string(lept_value* v, const char* s, size_t len) {
 	v->type = LEPT_STRING;
 	v->u.s.len = len;
 }
+
+size_t lept_get_array_size(const lept_value* v) {
+	assert(v!=NULL && v->type==LEPT_ARRAY);
+	return v->u.a.size;
+}
+
+const lept_value* lept_get_array_element(const lept_value* v, size_t index) {
+	assert(v != NULL && v->type==LEPT_ARRAY);
+	assert(index < v->u.a.size);
+	return &(v->u.a.e[index]);
+}
