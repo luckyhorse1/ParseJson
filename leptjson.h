@@ -18,16 +18,14 @@ enum {
 	LEPT_PARSE_INVALID_VALUE,
 	LEPT_PARSE_ROOT_NOT_SINGULAR,
 	LEPT_PARSE_NUMBER_TOO_BIG,
-	LEPT_PARSE_MISS_QUOTATION_MARK,
-	LEPT_PARSE_INVALID_STRING_ESCAPE,
-	LEPT_PARSE_INVALID_STRING_CHAR,
-	LEPT_PARSE_INVALID_UNICODE_HEX,
-	LEPT_PARSE_INVALID_UNICODE_SURROGATE
+	LEPT_PARSE_MISS_QUOTATION_MARK,	//缺少后面的双引号
+	LEPT_PARSE_INVALID_STRING_ESCAPE,	//无效的转义字符
+	LEPT_PARSE_INVALID_STRING_CHAR,	//不合法的字符（码点范围在0-31之间的不合法）
+	LEPT_PARSE_INVALID_UNICODE_HEX,	//无效的unicode 16进制字符（\uxxxx，其中x不在0-f之间）
+	LEPT_PARSE_INVALID_UNICODE_SURROGATE	//无效的unicode代理对（不符合代理对的要求）
 };
 
 #define lept_init(v) do{ (v)->type = LEPT_NULL; } while(0) //初始化的作用：在所有的set和get函数中，第一个就是对v进行判空，所以v一定要初始化
-
-static int lept_parse_string(lept_context* c, lept_value* v);
 
 int lept_parse(lept_value* v, const char* json);
 
