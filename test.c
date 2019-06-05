@@ -31,6 +31,12 @@ static int test_pass = 0;
 #define EXPECT_EQ_TRUE(actual)  EXPECT_EQ_BASE((actual)!=0, "true", "false", "%s")
 #define EXPECT_EQ_FALSE(actual)  EXPECT_EQ_BASE((actual)==0, "false", "true", "%s")
 
+#if defined(_MSC_VER) //使用条件编译区分编译器
+#define EXPECT_EQ_SIZE_T(expect, actual) EXPECT_EQ_BASE((expect)==(actual), expect, actual, "%Iu");
+#else
+#define EXPECT_EQ_SIZE_T(expect, actual) EXPECT_EQ_BASE((expect)==(actual), expect, actual, "%zu");
+#endif
+
 #define TEST_NUMBER(expect, json)\
 	do{\
 		lept_value v;\
@@ -182,7 +188,7 @@ static void test_parse_invalid_unicode_hex() {
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX, "\"\\u 123\"");
 }
 
-static void test_invalide_unicode_surrogate() {
+static void test_parse_invalide_unicode_surrogate() {
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\"");
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uDBFF\"");
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\\\\"");
@@ -190,12 +196,23 @@ static void test_invalide_unicode_surrogate() {
 	TEST_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE, "\"\\uD800\\uE000\"");
 }
 
+static void test_parse_array() {
+	lept_value v;
+	lept_init(&v);
+	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[]"));
+	EXPECT_EQ_INT(LEPT_ARRAY, lept_get_type(&v));
+	EXPECT_EQ_SIZE_T(0, lept_get_array_size(&v));
+	lept_free(&v);
+}
+
+
 static void test_parse() {
 	//test_parse_null();
 	//test_parse_true();
 	//test_parse_false();
 	//test_parse_number();
 	//test_parse_string();
+	test_parse_array();
 
 	//test_parse_expect_value();
 	//test_parse_invalid_value();
@@ -205,7 +222,7 @@ static void test_parse() {
 	//test_parse_invalid_string_escape();
 	//test_parse_invalid_string_char();
 	//test_parse_invalid_unicode_hex();
-	test_invalide_unicode_surrogate();
+	//test_parse_invalide_unicode_surrogate();
 }
 
 static void test_access_null() {
