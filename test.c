@@ -205,7 +205,7 @@ static void test_parse_array() {
 
 	//lept_init(&v);
 #if 0
-	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[null,false,true,123,\"abc\"]"));
+	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[ null , false , true , 123 , \"abc\" ]"));
 	EXPECT_EQ_INT(LEPT_ARRAY, lept_get_type(&v));
 	EXPECT_EQ_SIZE_T(5, lept_get_array_size(&v));
 	EXPECT_EQ_INT(LEPT_NULL, lept_get_type(lept_get_array_element(&v,0)));
@@ -218,7 +218,7 @@ static void test_parse_array() {
 #endif
 
 #if 1
-	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[[],[0],[0,1],[0,1,2]]"));
+	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[ [] , [ 0 ] , [ 0 , 1 ] , [ 0 , 1 , 2 ] ]"));
 	EXPECT_EQ_INT(LEPT_ARRAY, lept_get_type(&v));
 	EXPECT_EQ_SIZE_T(4, lept_get_array_size(&v));
 	int i,j;
