@@ -199,9 +199,19 @@ static void test_parse_invalide_unicode_surrogate() {
 static void test_parse_array() {
 	lept_value v;
 	lept_init(&v);
-	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[]"));
+	//EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[]"));
+	//EXPECT_EQ_INT(LEPT_ARRAY, lept_get_type(&v));
+	//EXPECT_EQ_SIZE_T(0, lept_get_array_size(&v));
+
+	//lept_init(&v);
+	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "[null,false,true,123,\"abc\"]"));
 	EXPECT_EQ_INT(LEPT_ARRAY, lept_get_type(&v));
-	EXPECT_EQ_SIZE_T(0, lept_get_array_size(&v));
+	EXPECT_EQ_SIZE_T(5, lept_get_array_size(&v));
+	EXPECT_EQ_INT(LEPT_NULL, lept_get_type(lept_get_array_element(&v,0)));
+	EXPECT_EQ_INT(LEPT_FALSE, lept_get_type(lept_get_array_element(&v, 1)));
+	EXPECT_EQ_INT(LEPT_TRUE, lept_get_type(lept_get_array_element(&v, 2)));
+	EXPECT_EQ_INT(LEPT_NUMBER, lept_get_type(lept_get_array_element(&v, 3)));
+	EXPECT_EQ_INT(LEPT_STRING, lept_get_type(lept_get_array_element(&v, 4)));
 	lept_free(&v);
 }
 
@@ -221,7 +231,7 @@ static void test_parse() {
 	//test_parse_false();
 	//test_parse_number();
 	//test_parse_string();
-	//test_parse_array();
+	test_parse_array();
 
 	//test_parse_expect_value();
 	//test_parse_invalid_value();
@@ -232,7 +242,7 @@ static void test_parse() {
 	//test_parse_invalid_string_char();
 	//test_parse_invalid_unicode_hex();
 	//test_parse_invalide_unicode_surrogate();
-	test_parse_miss_comma_or_square_bracket();
+	//test_parse_miss_comma_or_square_bracket();
 }
 
 static void test_access_null() {

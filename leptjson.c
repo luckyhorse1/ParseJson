@@ -216,12 +216,14 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
 			v->type = LEPT_ARRAY;
 			v->u.a.size = size;
 			size *= sizeof(lept_value);
-			memcpy(v->u.a.e = (lept_value*)malloc(size), lept_context_pop(c, sizeof(lept_value)), size);
+			memcpy(v->u.a.e = (lept_value*)malloc(size), lept_context_pop(c, size), size);
+			c->top = head;
 			return LEPT_PARSE_OK;
 		}
-		else
+		else{
 			c->top = head;
 			return LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET;
+		}
 	}
 }
 
