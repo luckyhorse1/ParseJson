@@ -5,13 +5,21 @@
 typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
 
 typedef struct lept_value lept_value;//lept_value内使用了自身类型的指针，我们必须前向声明（forward declare）此类型
+typedef struct lept_member lept_member;
 struct lept_value{
 	union {
+		struct { lept_member* m; size_t size;}o; //使用动态数组表示对象
 		struct { lept_value* e; size_t size; }a; //使用数组（而不是链表）表示json的数组，这里的size代表数组的元素个数
 		struct { char* s; size_t len; } s;
 		double n;
 	} u;
 	lept_type type;
+};
+
+struct lept_member {
+	char* key;
+	size_t klen; //使用该字段表示键的长度，原因是键可能包含空字符(\u0000)
+	lept_value v;
 };
 
 enum {
@@ -50,4 +58,9 @@ void lept_set_string(lept_value* v, const char* s, size_t len);
 
 size_t lept_get_array_size(const lept_value* v);
 const lept_value* lept_get_array_element(const lept_value* v, size_t index);
+
+size_t lept_get_object_size(const lept_value* v);
+const char* lept_get_object_key(const lept_value* v, size_t index);
+size_t lept_get_object_key_length(const lept_value* v, size_t index);
+const lept_value* lept_get_object_value(const lept_value* v, size_t index);
 #endif // !LEPTJSON_H__
