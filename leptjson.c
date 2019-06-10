@@ -136,18 +136,17 @@ static void lept_encode_utf8(lept_context* c, unsigned u) {//½«Âëµã±àÎªutf8µÄ±àÂ
 	}
 }
 
-static int lept_parse_string(lept_context* c, lept_value* v) {
-	size_t head = c->top, len;
+static int lept_parse_string_raw(lept_context* c, char** str, size_t* len) {
+	size_t head = c->top;
 	unsigned u, u2;
 	EXPECT(c, '\"');
 	const char* p = c->json;
 	while (1) {
 		char ch = *p++;
-		switch (ch){
+		switch (ch) {
 		case '\"':
-			len = c->top - head;
-			lept_set_string(v, (const char*)lept_context_pop(c, len), len);
-			v->type = LEPT_STRING;
+			*len = c->top - head;
+			*str = (const char*)lept_context_pop(c, *len);
 			c->json = p;
 			return LEPT_PARSE_OK;
 		case '\\':
@@ -172,7 +171,7 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
 						STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_SURROGATE);
 					u = (((u - 0xD800) << 10) | (u2 - 0xDC00)) + 0x10000;
 				}
-				lept_encode_utf8(c,u);
+				lept_encode_utf8(c, u);
 				break;
 			default:
 				STRING_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE);//±íÊ¾ÎÞÐ§µÄ×ªÒå×Ö·û
@@ -186,6 +185,16 @@ static int lept_parse_string(lept_context* c, lept_value* v) {
 			PUTC(c, ch);
 		}
 	}
+}
+
+static int lept_parse_string(lept_context* c, lept_value* v) {
+	int ret;
+	char* s;
+	size_t len;
+	if ((ret = lept_parse_string_raw(c, &s, &len)) == LEPT_PARSE_OK) {
+		lept_set_string(v, s, len);
+	}
+	return ret;
 }
 
 static int lept_parse_value(lept_context* c, lept_value* v);//ÉùÃ÷º¯Êý
