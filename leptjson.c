@@ -306,34 +306,13 @@ static int lept_parse_object(lept_context* c, lept_value* v) {
 		}
 	}
 
-	free(m.k);
+	//free(m.k);	//奇怪，这里必须注释掉，不然就报错
 	for (i = 0; i < size;i++) {
-		lept_member* m = (lept_member*)lept_context_pop(c, sizeof(lept_member));
-		free(m->k);
-		lept_free(&m->v);
+		lept_member* mem = (lept_member*)lept_context_pop(c, sizeof(lept_member));
+		free(mem->k);
+		lept_free(&mem->v);
 	}
 	v->type = LEPT_NULL;
-	return ret;
-}
-
-static int lept_parse_object_key(lept_context* c) {
-	int ret;
-	switch (*c->json) {
-	case 'n':
-		if (c->json[1] == 'u' && c->json[1] == 'm' && c->json[1] == 'm' && c->json[1] == 'b' && c->json[1] == 'e' && c->json[1] == 'r') {
-			c->json += 6;
-			ret = LEPT_NUMBER;
-		}
-		else {
-			ret = LEPT_PARSE_INVALID_VALUE;
-		}
-	default:
-		ret = LEPT_PARSE_INVALID_VALUE;
-	}
-	if (*c->json != '\"') {
-		ret = LEPT_PARSE_INVALID_VALUE;
-	}
-	c->json++;
 	return ret;
 }
 
@@ -345,6 +324,7 @@ static int lept_parse_value(lept_context* c, lept_value* v) {
 		case 'f': return lept_parse_litral(c, v, "false", LEPT_FALSE);
 		case '\0': return LEPT_PARSE_EXPECT_VALUE;
 		case '[': return lept_parse_array(c, v);
+		case '{': return lept_parse_object(c, v);
 		default: return lept_parse_number(c, v);
 	}
 }
@@ -390,6 +370,12 @@ void lept_free(lept_value* v) {//这个函数的作用：释放v所占的内存，包括字符串，对
 			}
 			free(v->u.a.e);
 			break;
+		case LEPT_OBJECT:
+			for (i = 0; i < v->u.o.size;i++) {
+				free(v->u.o.m[i].k);
+				lept_free(&v->u.o.m[i].v);
+			}
+			free(v->u.o.m);
 		default:
 			break;
 	}
@@ -459,7 +445,7 @@ size_t lept_get_object_size(const lept_value* v) {
 const char* lept_get_object_key(const lept_value * v, size_t index) {
 	assert(v != NULL && v->type == LEPT_OBJECT);
 	assert(index<v->u.o.size);
-	return v->u.o.m[index].key;
+	return v->u.o.m[index].k;
 }
 
 size_t lept_get_object_key_length(const lept_value * v, size_t index) {
