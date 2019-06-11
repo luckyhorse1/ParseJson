@@ -17,9 +17,9 @@ struct lept_value{
 };
 
 struct lept_member {
-	char* key;
+	char* k;
 	size_t klen; //使用该字段表示键的长度，原因是键可能包含空字符(\u0000)
-	lept_value v;
+	lept_value v; //为什么这里使用lept_value而不是lept_value* ?  因为一个member只对应一个lept_value
 };
 
 enum {
@@ -33,7 +33,10 @@ enum {
 	LEPT_PARSE_INVALID_STRING_CHAR,	//不合法的字符（码点范围在0-31之间的不合法）
 	LEPT_PARSE_INVALID_UNICODE_HEX,	//无效的unicode 16进制字符（\uxxxx，其中x不在0-f之间）
 	LEPT_PARSE_INVALID_UNICODE_SURROGATE,	//无效的unicode代理对（不符合代理对的要求）
-	LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET	//缺少逗号或方括号
+	LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET,	//缺少逗号或方括号
+	LEPT_PARSE_MISS_KEY, //object的key没有解析出来
+	LEPT_PARSE_MISS_COLON, //object中的key后面没有冒号
+	LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET //object中解析少逗号或者少右括号
 };
 
 #define lept_init(v) do{ (v)->type = LEPT_NULL; } while(0) //初始化的作用：在所有的set和get函数中，第一个就是对v进行判空，所以v一定要初始化

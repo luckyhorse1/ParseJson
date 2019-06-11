@@ -243,6 +243,100 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
 	return ret;
 }
 
+static int lept_parse_object(lept_context* c, lept_value* v) {
+	int ret;
+	lept_member m;
+	size_t i,size=0;
+	EXPECT(c, '{');
+	lept_parse_whitespace(c);
+	if (*c->json == '}') {
+		c->json++;
+		v->type = LEPT_OBJECT;
+		v->u.o.m = NULL;
+		v->u.o.size = 0;
+		return LEPT_PARSE_OK;
+	}
+	for (;;) {
+		/* parse key*/
+		char* str;
+		lept_init(&m.v);
+		m.k = NULL;// 注意：结构体变量是不能置空的，比如&m.v = NULL, 是无效的。
+		//对于结构体来说NULL就是空指针，而PB本身没有CREATE一个结构体的方法，结构体的内存分配是在声明时进行的，同样PB也没有为结构体设为NULL的方法
+		if (*c->json != '"') {
+			ret = LEPT_PARSE_MISS_KEY;
+			break;
+		}
+		if ((ret = lept_parse_string_raw(c, &str, &m.klen)) != LEPT_PARSE_OK)
+			break;
+		memcpy(m.k = (char*)malloc(m.klen+1), str, m.klen); //解析字符串，并复制给m变量
+		m.k[m.klen] = '\0';
+
+		/* parse ws colon ws*/
+		lept_parse_whitespace(c);
+		if (*c->json!=':') {
+			ret = LEPT_PARSE_MISS_COLON;
+			break;
+		}
+		c->json++;
+		lept_parse_whitespace(c);
+
+		/* parse value */
+		if ((ret = lept_parse_value(c, &m.v)) != LEPT_PARSE_OK)
+			break;
+		memcpy(lept_context_push(c, sizeof(lept_member)), &m, sizeof(lept_member)); //把解析好的m变量，放到堆栈中
+		size++;
+
+		/* parse ws [comma | right-curly-brace] ws */
+		lept_parse_whitespace(c);
+		if (*c->json == ',') {
+			c->json++;
+			lept_parse_whitespace(c);
+		}
+		else if (*c->json == '}') {
+			c->json++;
+			size_t s = size * sizeof(lept_member);
+			v->u.o.size = size;
+			v->type = LEPT_OBJECT;
+			memcpy(v->u.o.m = (lept_member*)malloc(s), lept_context_pop(c, s), s);
+			return LEPT_PARSE_OK;
+		}
+		else {
+			ret = LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET;
+			break;
+		}
+	}
+
+	free(m.k);
+	for (i = 0; i < size;i++) {
+		lept_member* m = (lept_member*)lept_context_pop(c, sizeof(lept_member));
+		free(m->k);
+		lept_free(&m->v);
+	}
+	v->type = LEPT_NULL;
+	return ret;
+}
+
+static int lept_parse_object_key(lept_context* c) {
+	int ret;
+	switch (*c->json) {
+	case 'n':
+		if (c->json[1] == 'u' && c->json[1] == 'm' && c->json[1] == 'm' && c->json[1] == 'b' && c->json[1] == 'e' && c->json[1] == 'r') {
+			c->json += 6;
+			ret = LEPT_NUMBER;
+		}
+		else {
+			ret = LEPT_PARSE_INVALID_VALUE;
+		}
+	default:
+		ret = LEPT_PARSE_INVALID_VALUE;
+	}
+	if (*c->json != '\"') {
+		ret = LEPT_PARSE_INVALID_VALUE;
+	}
+	c->json++;
+	return ret;
+}
+
 static int lept_parse_value(lept_context* c, lept_value* v) {
 	switch (*c->json){
 		case '"': return lept_parse_string(c,v);

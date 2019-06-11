@@ -250,7 +250,7 @@ static void test_parse() {
 	//test_parse_true();
 	//test_parse_false();
 	//test_parse_number();
-	test_parse_string();
+	//test_parse_string();
 	//test_parse_array();
 
 	//test_parse_expect_value();
