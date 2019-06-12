@@ -375,11 +375,20 @@ static void test_stringify_number() {
 	TEST_ROUNDTRIP("-1.7976931348623157e+308");
 }
 
+static void test_stringify_string() {
+	//TEST_ROUNDTRIP("\"\"");
+	//TEST_ROUNDTRIP("\"Hello\"");
+	//TEST_ROUNDTRIP("\"Hello\\nWorld\"");
+	TEST_ROUNDTRIP("\"\\\" \\\\ / \\b \\f \\n \\r \\t\"");
+	//TEST_ROUNDTRIP("\"Hello\\u0000World\"");
+}
+
 static void test_stringify() {
 	//TEST_ROUNDTRIP("null");
 	//TEST_ROUNDTRIP("false");
 	//TEST_ROUNDTRIP("true");
-	test_stringify_number();
+	//test_stringify_number();
+	test_stringify_string();
 }
 
 static void test_access_null() {

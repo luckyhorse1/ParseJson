@@ -20,7 +20,7 @@
 #ifndef LEPT_PARSE_STRINGIFY_INIT_SIZE
 #define LEPT_PARSE_STRINGIFY_INIT_SIZE 256
 #endif // !LEPT_PARSE_STRINGIFY_INIT_SIZE
-#define PUTS(c, s, len) memcpy(lept_context_push(c, len), s, len)
+#define PUTS(c, s, len) memcpy((char*)lept_context_push(c, len), s, len)
 
 
 
@@ -163,8 +163,8 @@ static int lept_parse_string_raw(lept_context* c, char** str, size_t* len) {
 			case '\\': PUTC(c, '\\'); break;
 			case 'b': PUTC(c, '\b'); break;
 			case 'f': PUTC(c, '\f'); break;
-			case 'n"': PUTC(c, '\n'); break;
-			case 'r"': PUTC(c, '\r'); break;
+			case 'n': PUTC(c, '\n'); break;
+			case 'r': PUTC(c, '\r'); break;
 			case 't': PUTC(c, '\t'); break;
 			case 'u':
 				if (!(p = lept_parse_hex4(p, &u))) STRING_ERROR(LEPT_PARSE_INVALID_UNICODE_HEX);
@@ -184,6 +184,7 @@ static int lept_parse_string_raw(lept_context* c, char** str, size_t* len) {
 			default:
 				STRING_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE);//表示无效的转义字符
 			}
+			break;
 		case '\0':
 			STRING_ERROR(LEPT_PARSE_MISS_QUOTATION_MARK);//表示缺少标记位（即双引号）
 		default:
@@ -468,12 +469,42 @@ const lept_value* lept_get_object_value(const lept_value * v, size_t index) {
 	return &v->u.o.m[index].v;
 }
 
+static void lept_stringify_string(lept_context* c, const char* s, size_t len){
+	assert(s != NULL);
+	size_t i;
+	PUTC(c, '"');
+	for (i=0; i<len; i++) {
+		unsigned char ch = (unsigned char)s[i];
+		switch (ch) {
+			//如果字符串中的字符是转义字符，那么生成的时候，要加上 '\'
+			case '\"': PUTS(c, "\\\"", 2); break;
+			case '\\': PUTS(c, "\\\\", 2); break;
+			case '\b': PUTS(c, "\\b", 2); break;
+			case '\f': PUTS(c, "\\f", 2); break;
+			case '\n': PUTS(c, "\\n", 2); break;
+			case '\r': PUTS(c, "\\r", 2); break;
+			case '\t': PUTS(c, "\\t", 2); break;
+			default:
+				if (ch < 0x20) { // 如果这个字符小于32的话，就要用\u00xx的方式来表达
+					char buffer[7];
+					sprintf_s(buffer, 7, "\\u%04X", ch);
+					PUTS(c, buffer, 6);
+				}
+				else
+					PUTC(c, s[i]);
+			}
+	}
+
+	PUTC(c, '"');
+}
+
 static void lept_stringify_value(lept_context* c, const lept_value* v) {
 	switch (v->type) {
 	case LEPT_NULL: PUTS(c, "null", 4); break;
 	case LEPT_FALSE: PUTS(c, "false", 5); break;
 	case LEPT_TRUE: PUTS(c, "true", 4); break;
 	case LEPT_NUMBER: c->top -= 32 - sprintf_s(lept_context_push(c, 32), 32, "%.17g", v->u.n); break; //把格式化的字符，放到缓冲区中
+	case LEPT_STRING: lept_stringify_string(c, v->u.s.s, v->u.s.len);
 	}
 }
 
