@@ -66,4 +66,6 @@ size_t lept_get_object_size(const lept_value* v);
 const char* lept_get_object_key(const lept_value* v, size_t index);
 size_t lept_get_object_key_length(const lept_value* v, size_t index);
 const lept_value* lept_get_object_value(const lept_value* v, size_t index);
+
+char* lept_stringify(const lept_value* v, size_t* length); //length参数是可选的，传入NULL表示忽略。使用方需要用free()释放内存。
 #endif // !LEPTJSON_H__

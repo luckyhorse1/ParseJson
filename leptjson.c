@@ -1,4 +1,5 @@
 #define _CRTDBG_MAP_ALLOC
+#define _CRT_SECURE_NO_DEPRECATE
 #include <stdlib.h>  /*NULL, strtod(), free()*/
 #include <crtdbg.h>
 #include "leptjson.h"
@@ -6,6 +7,7 @@
 #include <math.h>  /*HUGE_VAL*/
 #include <errno.h>  /*errno, ERANGE*/
 #include <string.h> /*memcpy()*/
+#include <stdio.h> /* sprintf() */
 
 #define EXPECT(c, ch) do{ assert(*c->json == ch); c->json++;}while(0)
 #define ISDIGIT(ch) ((ch) >= '0' && (ch) <= '9')
@@ -14,6 +16,12 @@
 #define LEPT_PARSE_STACK_INIT_SIZE 256
 #endif // LEPT_PARSE_STACK_INIT_SIZE
 #define PUTC(c, ch) do{ *(char*)lept_context_push(c, sizeof(char)) = (ch);}while(0)
+
+#ifndef LEPT_PARSE_STRINGIFY_INIT_SIZE
+#define LEPT_PARSE_STRINGIFY_INIT_SIZE 256
+#endif // !LEPT_PARSE_STRINGIFY_INIT_SIZE
+#define PUTS(c, s, len) memcpy(lept_context_push(c, len), s, len)
+
 
 
 //为什么使用堆栈作为缓冲区，不能直接使用char*吗？为什么下面的json不需要使用realloc？
@@ -458,4 +466,25 @@ const lept_value* lept_get_object_value(const lept_value * v, size_t index) {
 	assert(v != NULL && v->type == LEPT_OBJECT);
 	assert(index < v->u.o.size);
 	return &v->u.o.m[index].v;
+}
+
+static void lept_stringify_value(lept_context* c, const lept_value* v) {
+	switch (v->type) {
+	case LEPT_NULL: PUTS(c, "null", 4); break;
+	case LEPT_FALSE: PUTS(c, "false", 5); break;
+	case LEPT_TRUE: PUTS(c, "true", 4); break;
+	case LEPT_NUMBER: c->top -= 32 - sprintf_s(lept_context_push(c, 32), 32, "%.17g", v->u.n); break; //把格式化的字符，放到缓冲区中
+	}
+}
+
+char* lept_stringify(const lept_value* v, size_t* length) {
+	lept_context c;
+	assert(v != NULL);
+	c.stack = (char*)malloc(c.size = LEPT_PARSE_STRINGIFY_INIT_SIZE);
+	c.top = 0;
+	lept_stringify_value(&c, v);
+	if (length)
+		* length = c.top;
+	PUTC(&c, '\0');
+	return c.stack;
 }
