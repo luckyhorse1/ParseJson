@@ -383,12 +383,24 @@ static void test_stringify_string() {
 	//TEST_ROUNDTRIP("\"Hello\\u0000World\"");
 }
 
+static void test_stringify_array() {
+	TEST_ROUNDTRIP("[]");
+	TEST_ROUNDTRIP("[null,false,true,123,\"abc\",[1,2,3]]");
+}
+
+static void test_stringify_object() {
+	TEST_ROUNDTRIP("{}");
+	TEST_ROUNDTRIP("{\"n\":null,\"f\":false,\"t\":true,\"i\":123,\"s\":\"abc\",\"a\":[1,2,3],\"o\":{\"1\":1,\"2\":2,\"3\":3}}");
+}
+
 static void test_stringify() {
 	//TEST_ROUNDTRIP("null");
 	//TEST_ROUNDTRIP("false");
 	//TEST_ROUNDTRIP("true");
 	//test_stringify_number();
-	test_stringify_string();
+	//test_stringify_string();
+	//test_stringify_array();
+	test_stringify_object();
 }
 
 static void test_access_null() {
