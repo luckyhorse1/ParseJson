@@ -495,13 +495,25 @@ static void test_equal() {
 	TEST_EQUAL("{\"a\":{\"b\":{\"c\":{}}}}", "{\"a\":{\"b\":{\"c\":[]}}}", 0);
 }
 
+static void test_copy() {
+	lept_value v1, v2;
+	lept_init(&v1);
+	lept_parse(&v1, "{\"t\":true,\"f\":false,\"n\":null,\"d\":1.5,\"a\":[1,2,3]}");
+	lept_init(&v2);
+	lept_copy(&v2, &v1);
+	EXPECT_EQ_TRUE(lept_is_equal(&v2, &v1));
+	lept_free(&v1);
+	lept_free(&v2);
+}
+
 int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//test_parse();
 	//test_access();
 	//test_stringify();
 	//test_find_index();
-	test_equal();
+	//test_equal();
+	test_copy();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

@@ -615,3 +615,47 @@ int lept_is_equal(const lept_value* lhs, const lept_value* rhs) {
 	}
 	return ret;
 }
+
+void lept_set_object_key(lept_value* v , size_t index, const char* key, size_t len) {
+	assert(v != NULL && v->type == LEPT_OBJECT);
+	assert(index < v->u.o.size);
+	v->u.o.m[index].k = (lept_member*)malloc(len+1);
+	v->u.o.m[index].klen = len;
+	memcpy(v->u.o.m[index].k, key, len);
+	v->u.o.m[index].k[len] = '\0';
+}
+
+void lept_copy(lept_value* dst, const lept_value* src) {
+	size_t i;
+	assert(dst != NULL && src != NULL);
+	dst->type = src->type;
+	switch(src->type) {
+	case LEPT_STRING:
+		dst->u.s.len = src->u.s.len;
+		lept_set_string(dst, src->u.s.s, src->u.s.len);
+		memcpy(dst->u.s.s = (char*)malloc(sizeof(char) * (src->u.s.len + 1)), src->u.s.s, src->u.s.len);
+		break;
+	case LEPT_NUMBER:
+		dst->u.n = src->u.n;
+		break;
+	case LEPT_ARRAY:
+		dst->u.a.size = src->u.a.size;
+		dst->u.a.e = (lept_value*)malloc(sizeof(lept_value)*src->u.a.size);
+		for (i = 0; i < src->u.a.size; i++) {
+			lept_copy(&dst->u.a.e[i], &src->u.a.e[i]);
+		}
+		break;
+	case LEPT_OBJECT:
+		dst->u.o.size = src->u.o.size;
+		dst->u.o.m = (lept_member*)malloc(sizeof(lept_member) * src->u.o.size);
+		for (i = 0; i < src->u.o.size; i++) {
+			lept_set_object_key(dst, i, src->u.o.m[i].k, src->u.o.m[i].klen);
+			lept_copy(&dst->u.o.m[i].v, &src->u.o.m[i].v);
+		}
+		break;
+	default:
+		lept_free(dst);
+		memcpy(dst, src, sizeof(lept_value));
+		break;
+	}
+}
