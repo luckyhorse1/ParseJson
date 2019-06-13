@@ -562,3 +562,56 @@ const lept_value* lept_find_object_value(const lept_value* v, const char* key, s
 	size_t index = lept_find_object_index(v, key, klen);
 	return index != LEPT_KEY_NOT_EXIST ? &v->u.o.m[index].v : NULL;
 }
+
+int lept_is_equal(const lept_value* lhs, const lept_value* rhs) {
+	size_t i;
+	int is_equal=1, ret=0;
+	assert(lhs != NULL && rhs != NULL);
+	if (lhs->type != rhs->type)
+		return ret;
+	switch (lhs->type) {
+	case LEPT_STRING:
+		if (lhs->u.s.len == rhs->u.s.len && memcmp(lhs->u.s.s, rhs->u.s.s, lhs->u.s.len) == 0)
+			ret = 1;
+		break;
+	case LEPT_NUMBER:
+		if (lhs->u.n == rhs->u.n)
+			ret = 1;
+		break;
+	case LEPT_ARRAY:
+		if (lhs->u.a.size == rhs->u.a.size) {
+			if (lhs->u.o.size == 0) {
+				ret = 1;
+				break;
+			}
+			for (i = 0; i < lhs->u.a.size; i++) {
+				if (!lept_is_equal(&lhs->u.a.e[i], &rhs->u.a.e[i])) {
+					is_equal = 0;
+					break;
+				}
+			}
+			ret = is_equal == 1 ? 1 : 0;
+		}
+		break;
+	case LEPT_OBJECT:
+		if (lhs->u.o.size == rhs->u.o.size) {
+			if (lhs->u.o.size == 0) {
+				ret = 1; break;
+			}
+			for (i = 0; i < lhs->u.o.size; i++) {
+				int index = lept_find_object_index(rhs, lhs->u.o.m[i].k, lhs->u.o.m[i].klen);
+				if (index == LEPT_KEY_NOT_EXIST) {
+					is_equal = 0; break;
+				}
+				if (lhs->u.o.m[i].klen != rhs->u.o.m[index].klen || memcmp(lhs->u.o.m[i].k, rhs->u.o.m[index].k, lhs->u.o.m->klen) != 0 || !lept_is_equal(&lhs->u.o.m[i].v, &rhs->u.o.m[index].v)) {
+					is_equal = 0; break;
+				}
+			}
+			ret = is_equal == 1 ? 1 : 0;
+		}
+		break;
+	default:
+		ret = 1;
+	}
+	return ret;
+}
