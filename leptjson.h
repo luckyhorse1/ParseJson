@@ -2,6 +2,8 @@
 #define LEPTJSON_H__
 #include <stddef.h>  /*size_t*/
 
+#define LEPT_KEY_NOT_EXIST ((size_t)-1)
+
 typedef enum { LEPT_NULL, LEPT_FALSE, LEPT_TRUE, LEPT_NUMBER, LEPT_STRING, LEPT_ARRAY, LEPT_OBJECT } lept_type;
 
 typedef struct lept_value lept_value;//lept_value内使用了自身类型的指针，我们必须前向声明（forward declare）此类型
@@ -36,7 +38,7 @@ enum {
 	LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET,	//缺少逗号或方括号
 	LEPT_PARSE_MISS_KEY, //object的key没有解析出来
 	LEPT_PARSE_MISS_COLON, //object中的key后面没有冒号
-	LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET //object中解析少逗号或者少右括号
+	LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET, //object中解析少逗号或者少右括号
 };
 
 #define lept_init(v) do{ (v)->type = LEPT_NULL; } while(0) //初始化的作用：在所有的set和get函数中，第一个就是对v进行判空，所以v一定要初始化
@@ -68,4 +70,5 @@ size_t lept_get_object_key_length(const lept_value* v, size_t index);
 const lept_value* lept_get_object_value(const lept_value* v, size_t index);
 
 char* lept_stringify(const lept_value* v, size_t* length); //length参数是可选的，传入NULL表示忽略。使用方需要用free()释放内存。
+size_t lept_find_object_index(const lept_value* v, const char* key, size_t len);
 #endif // !LEPTJSON_H__

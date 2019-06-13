@@ -446,11 +446,22 @@ static void test_access() {
 	//test_access_number();
 }
 
+static void test_find_index() {
+	lept_value v;
+	lept_init(&v);
+	EXPECT_EQ_INT(LEPT_PARSE_OK, lept_parse(&v, "{\"name\" : \"xiaoma\", \"sex\" : 1 }"));
+	EXPECT_EQ_SIZE_T(0, lept_find_object_index(&v, "name", 4));
+	const lept_value* v2 = lept_find_object_value(&v, "name", 4);
+	EXPECT_EQ_STRING("xiaoma", v2->u.s.s, v2->u.s.len);
+	lept_free(&v);
+}
+
 int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//test_parse();
 	//test_access();
-	test_stringify();
+	//test_stringify();
+	test_find_index();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
