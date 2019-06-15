@@ -11,7 +11,7 @@ typedef struct lept_member lept_member;
 struct lept_value{
 	union {
 		struct { lept_member* m; size_t size;}o; //Ê¹ÓÃ¶¯Ì¬Êı×é±íÊ¾¶ÔÏó
-		struct { lept_value* e; size_t size; }a; //Ê¹ÓÃÊı×é£¨¶ø²»ÊÇÁ´±í£©±íÊ¾jsonµÄÊı×é£¬ÕâÀïµÄsize´ú±íÊı×éµÄÔªËØ¸öÊı
+		struct { lept_value* e; size_t size, capacity; }a; //Ê¹ÓÃÊı×é£¨¶ø²»ÊÇÁ´±í£©±íÊ¾jsonµÄÊı×é£¬ÕâÀïµÄsize´ú±íÊı×éµÄÔªËØ¸öÊı
 		struct { char* s; size_t len; } s;
 		double n;
 	} u;
@@ -68,7 +68,16 @@ size_t lept_get_string_length(const lept_value* v);
 void lept_set_string(lept_value* v, const char* s, size_t len);
 
 size_t lept_get_array_size(const lept_value* v);
+size_t lept_get_array_capacity(const lept_value* v);
 const lept_value* lept_get_array_element(const lept_value* v, size_t index);
+void lept_set_array(lept_value* v, size_t capacity);// ³õÊ¼»¯Ò»¸öÈİÁ¿ÎªcapacityµÄÊı×é
+void lept_reserve_array(lept_value* v, size_t capacity); //ÈİÁ¿²»¹»Ê±£¬À©³äÈİÁ¿
+void lept_shrink_array(lept_value* v); //ËõĞ¡Êı×éµÄÈİÁ¿ÖÁµ±Ç°µÄÓĞĞ§ÔªËØ´óĞ¡
+void lept_clear_array(lept_value* v);
+lept_value* lept_pushback_array_element(lept_value* v); //ÍùÊı×éÖĞ²åÈëÒ»¸öÔªËØ£¬²¢·µ»Ø¸ÃÔªËØµÄÖ¸Õë
+void lept_popback_array_element(lept_value* v);
+lept_value* lept_insert_array_element(lept_value* v, size_t index);
+void lept_erase_array_element(lept_value* v, size_t index, size_t count);
 
 size_t lept_get_object_size(const lept_value* v); //»ñÈ¡objectÖĞÔªËØµÄ¸öÊı
 const char* lept_get_object_key(const lept_value* v, size_t index); // ¸ù¾İindex£¬ÕÒµ½¶ÔÓ¦µÄkey
@@ -77,6 +86,5 @@ const lept_value* lept_get_object_value(const lept_value* v, size_t index); // ¸
 size_t lept_find_object_index(const lept_value* v, const char* key, size_t len); // ¸ù¾İkey£¬ÕÒµ½objectÖĞµÄindex
 const lept_value* lept_find_object_value(const lept_value* v, const char* key, size_t klen); //¸ù¾İkey£¬ÕÒµ½objecÖĞµÄvalue
 lept_value* lept_set_object_value(lept_value* v, const char* key, size_t klen); //¸ø¶ÔÏóÌí¼ÓÒ»¸ökey£¬²¢·µ»Ø¸Ãkey¶ÔÓ¦value
-void lept_remove_object_value(lept_value* v, size_t index);
 
 #endif // !LEPTJSON_H__

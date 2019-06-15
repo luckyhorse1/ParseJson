@@ -215,9 +215,7 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
 	lept_parse_whitespace(c);
 	if (*c->json == ']') {
 		c->json++;
-		v->type = LEPT_ARRAY;
-		v->u.a.e = NULL;
-		v->u.a.size = 0;
+		lept_set_array(v, 0);
 		return LEPT_PARSE_OK;
 	}
 	for (;;) {
@@ -234,10 +232,9 @@ static int lept_parse_array(lept_context* c, lept_value* v) {
 		}
 		else if (*c->json == ']') {
 			c->json++;
-			v->type = LEPT_ARRAY;
+			lept_set_array(v, size);
+			memcpy(v->u.a.e, lept_context_pop(c, size*sizeof(lept_value)), size*sizeof(lept_value));
 			v->u.a.size = size;
-			size *= sizeof(lept_value);
-			memcpy(v->u.a.e = (lept_value*)malloc(size), lept_context_pop(c, size), size);
 			return LEPT_PARSE_OK;
 		}
 		else{
@@ -684,5 +681,78 @@ void lept_swap(lept_value* lhs, lept_value* rhs) {
 		memcpy(&temp, lhs, sizeof(lept_value));
 		memcpy(lhs, rhs, sizeof(lept_value));
 		memcpy(rhs, &temp, sizeof(lept_value));
+	}
+}
+
+void lept_set_array(lept_value* v, size_t capacity) {
+	assert(v != NULL);
+	lept_free(v);
+	v->type = LEPT_ARRAY;
+	v->u.a.size = 0;
+	v->u.a.capacity = capacity;
+	v->u.a.e = capacity>0 ? (lept_value*)malloc(capacity*sizeof(lept_value)) : NULL;
+}
+
+size_t lept_get_array_capacity(const lept_value* v) {
+	asset(v != NULL && v->type == LEPT_ARRAY);
+	return v->u.a.capacity;
+}
+
+void lept_reserve_array(lept_value* v, size_t capacity) {
+	assert(v!=NULL && v->type==LEPT_ARRAY);
+	if (v->u.a.capacity < capacity) {
+		v->u.a.capacity = capacity;
+		v->u.a.e = (lept_value*)realloc(v->u.a.e, capacity * sizeof(lept_value));
+	}
+}
+
+void lept_shrink_array(lept_value* v) {
+	assert(v != NULL && v->type == LEPT_ARRAY);
+	if (v->u.a.size < v->u.a.capacity) {
+		v->u.a.capacity = v->u.a.size;
+		v->u.a.e = (lept_value*)realloc(v->u.a.e, v->u.a.size*sizeof(lept_value));
+	}
+}
+
+lept_value* lept_pushback_array_element(lept_value* v) {
+	assert(v != NULL && v->type == LEPT_ARRAY);
+	if (v->u.a.size == v->u.a.capacity)
+		lept_reserve_array(v, v->u.a.capacity==0? 1: v->u.a.capacity*2);
+	lept_init(&v->u.a.e[v->u.a.size]);
+	return &v->u.a.e[v->u.a.size++];
+}
+
+void lept_popback_array_element(lept_value* v) {
+	assert(v != NULL && v->type == LEPT_ARRAY && v->u.a.size > 0);
+	lept_free(&v->u.a.e[--v->u.a.size]);
+}
+
+lept_value* lept_insert_array_element(lept_value* v, size_t index) {
+	size_t i;
+	assert(v != NULL && v->type == LEPT_ARRAY && index>=0 && index<= v->u.a.size);
+	lept_reserve_array(v, ++v->u.a.size);
+	for (i = v->u.a.size-1; i > index; i--) {
+		memcpy(&v->u.a.e[i], &v->u.a.e[i-1], sizeof(lept_value));
+	}
+	lept_init( &v->u.a.e[index]);
+	return &v->u.a.e[index];
+}
+
+void lept_erase_array_element(lept_value* v, size_t index, size_t count) {
+	size_t i;
+	assert(v != NULL && v->type == LEPT_ARRAY && index >= 0 && index < v->u.a.size);
+	for (i = index; i < v->u.a.size; i++) {
+		memcpy(&v->u.a.e[i], &v->u.a.e[i + 1], sizeof(lept_value));
+	}
+	lept_init(&v->u.a.e[--v->u.a.size]);
+}
+
+void lept_clear_array(lept_value* v) {
+	size_t i;
+	assert(v != NULL && v->type == LEPT_ARRAY);
+	if (v->u.a.size > 0) {
+		for (i = 0; i < v->u.a.size; i++) {
+			lept_free(&v->u.a.e[i]);
+		}
 	}
 }
