@@ -385,6 +385,7 @@ void lept_free(lept_value* v) {//这个函数的作用：释放v所占的内存，包括字符串，对
 				lept_free(&v->u.o.m[i].v);
 			}
 			free(v->u.o.m);
+			break;
 		default:
 			break;
 	}
@@ -616,10 +617,10 @@ int lept_is_equal(const lept_value* lhs, const lept_value* rhs) {
 	return ret;
 }
 
-void lept_set_object_key(lept_value* v , size_t index, const char* key, size_t len) {
+void lept_add_object_key(lept_value* v , size_t index, const char* key, size_t len) {//根据index，给object添加一个key
 	assert(v != NULL && v->type == LEPT_OBJECT);
 	assert(index < v->u.o.size);
-	v->u.o.m[index].k = (lept_member*)malloc(len+1);
+	v->u.o.m[index].k = (char*)malloc(len+1);
 	v->u.o.m[index].klen = len;
 	memcpy(v->u.o.m[index].k, key, len);
 	v->u.o.m[index].k[len] = '\0';
@@ -649,7 +650,7 @@ void lept_copy(lept_value* dst, const lept_value* src) {
 		dst->u.o.size = src->u.o.size;
 		dst->u.o.m = (lept_member*)malloc(sizeof(lept_member) * src->u.o.size);
 		for (i = 0; i < src->u.o.size; i++) {
-			lept_set_object_key(dst, i, src->u.o.m[i].k, src->u.o.m[i].klen);
+			lept_add_object_key(dst, i, src->u.o.m[i].k, src->u.o.m[i].klen);
 			lept_copy(&dst->u.o.m[i].v, &src->u.o.m[i].v);
 		}
 		break;
@@ -658,4 +659,13 @@ void lept_copy(lept_value* dst, const lept_value* src) {
 		memcpy(dst, src, sizeof(lept_value));
 		break;
 	}
+}
+
+lept_value* lept_set_object_value(lept_value* v, const char* key, size_t klen) { 
+	size_t index;
+	assert(v != NULL && v->type == LEPT_OBJECT);
+	index = v->u.o.size++;
+	v->u.o.m = (lept_member*)realloc(v->u.o.m, sizeof(lept_member)*v->u.o.size);
+	lept_add_object_key(v, index, key, klen);
+	return &v->u.o.m[index].v;
 }

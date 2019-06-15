@@ -44,10 +44,14 @@ enum {
 #define lept_init(v) do{ (v)->type = LEPT_NULL; } while(0) //初始化的作用：在所有的set和get函数中，第一个就是对v进行判空，所以v一定要初始化
 
 int lept_parse(lept_value* v, const char* json);
+char* lept_stringify(const lept_value* v, size_t* length); //根据lept_value生成json字符串。length参数是可选的，传入NULL表示忽略。使用方需要用free()释放内存。
+
+void lept_copy(lept_value* dst, const lept_value* src); // 深度复制
 
 void lept_free(lept_value* v); //释放动态生成的字符串所占的存储
 
 lept_type lept_get_type(const lept_value* v);
+int lept_is_equal(const lept_value* lhs, const lept_value* rhs); //判断两个lept_value是否相同
 
 #define lept_set_null(v) lept_free(v)
 
@@ -64,11 +68,13 @@ void lept_set_string(lept_value* v, const char* s, size_t len);
 size_t lept_get_array_size(const lept_value* v);
 const lept_value* lept_get_array_element(const lept_value* v, size_t index);
 
-size_t lept_get_object_size(const lept_value* v);
-const char* lept_get_object_key(const lept_value* v, size_t index);
-size_t lept_get_object_key_length(const lept_value* v, size_t index);
-const lept_value* lept_get_object_value(const lept_value* v, size_t index);
+size_t lept_get_object_size(const lept_value* v); //获取object中元素的个数
+const char* lept_get_object_key(const lept_value* v, size_t index); // 根据index，找到对应的key
+size_t lept_get_object_key_length(const lept_value* v, size_t index); //根据index，找对应key的长度
+const lept_value* lept_get_object_value(const lept_value* v, size_t index); // 根据index，找对应的value
+size_t lept_find_object_index(const lept_value* v, const char* key, size_t len); // 根据key，找到object中的index
+const lept_value* lept_find_object_value(const lept_value* v, const char* key, size_t klen); //根据key，找到objec中的value
+lept_value* lept_set_object_value(lept_value* v, const char* key, size_t klen); //给对象添加一个key，并返回该key对应value
+void lept_remove_object_value(lept_value* v, size_t index);
 
-char* lept_stringify(const lept_value* v, size_t* length); //length参数是可选的，传入NULL表示忽略。使用方需要用free()释放内存。
-size_t lept_find_object_index(const lept_value* v, const char* key, size_t len);
 #endif // !LEPTJSON_H__

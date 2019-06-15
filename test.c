@@ -506,6 +506,23 @@ static void test_copy() {
 	lept_free(&v2);
 }
 
+static void test_set_object_value() {
+	lept_value v, *m;
+	lept_init(&v);
+	lept_parse(&v, "{}");
+	EXPECT_EQ_INT(LEPT_OBJECT, lept_get_type(&v));
+	EXPECT_EQ_SIZE_T(0, lept_get_object_size(&v));
+#if 1
+	lept_set_string(lept_set_object_value(&v, "s", 1), "hello", 5);
+	EXPECT_EQ_STRING("s", lept_get_object_key(&v, 0), lept_get_object_key_length(&v, 0));
+
+	m = lept_get_object_value(&v, 0);
+	EXPECT_EQ_INT(LEPT_STRING, lept_get_type(m));
+	EXPECT_EQ_STRING("hello", lept_get_string(m), lept_get_string_length(m));
+#endif
+	lept_free(&v);
+}
+
 int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//test_parse();
@@ -513,7 +530,8 @@ int main() {
 	//test_stringify();
 	//test_find_index();
 	//test_equal();
-	test_copy();
+	//test_copy();
+	test_set_object_value();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }
