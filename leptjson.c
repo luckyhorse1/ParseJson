@@ -669,3 +669,10 @@ lept_value* lept_set_object_value(lept_value* v, const char* key, size_t klen) {
 	lept_add_object_key(v, index, key, klen);
 	return &v->u.o.m[index].v;
 }
+
+void lept_move(lept_value* dst, lept_value* src) {//这个move写的很好。
+	assert(dst != NULL && src != NULL && dst != src);
+	lept_free(dst);
+	memcpy(dst, src, sizeof(lept_value));
+	lept_init(src);
+}
