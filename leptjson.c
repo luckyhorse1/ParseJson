@@ -676,3 +676,13 @@ void lept_move(lept_value* dst, lept_value* src) {//这个move写的很好。
 	memcpy(dst, src, sizeof(lept_value));
 	lept_init(src);
 }
+
+void lept_swap(lept_value* lhs, lept_value* rhs) {
+	assert(lhs != NULL && rhs != NULL);
+	if (lhs!=rhs) {
+		lept_value temp;
+		memcpy(&temp, lhs, sizeof(lept_value));
+		memcpy(lhs, rhs, sizeof(lept_value));
+		memcpy(rhs, &temp, sizeof(lept_value));
+	}
+}

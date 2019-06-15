@@ -535,6 +535,21 @@ static void test_move() {
 	lept_free(&v1);
 }
 
+static void test_swap() {
+	lept_value v1, v2;
+	lept_init(&v1);
+	lept_init(&v2);
+	lept_parse(&v1, "true");
+	lept_parse(&v2, "\"123\"");
+
+	lept_swap(&v1, &v2);
+	EXPECT_EQ_INT(LEPT_STRING, lept_get_type(&v1));
+	EXPECT_EQ_STRING("123", lept_get_string(&v1), lept_get_string_length(&v1));
+	EXPECT_EQ_INT(LEPT_TRUE, lept_get_type(&v2));
+	lept_free(&v1);
+	lept_free(&v2);
+}
+
 int main() {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//test_parse();
@@ -544,7 +559,8 @@ int main() {
 	//test_equal();
 	//test_copy();
 	//test_set_object_value();
-	test_move();
+	//test_move();
+	test_swap();
 	printf("%d %d (%3.2f%%) passed\n", test_pass, test_count, test_pass * 100.0 / test_count);
 	return main_ret;
 }

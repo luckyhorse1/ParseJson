@@ -47,7 +47,8 @@ int lept_parse(lept_value* v, const char* json);
 char* lept_stringify(const lept_value* v, size_t* length); //根据lept_value生成json字符串。length参数是可选的，传入NULL表示忽略。使用方需要用free()释放内存。
 
 void lept_copy(lept_value* dst, const lept_value* src); // 深度复制
-void lept_move(lept_value* dst, lept_value* src); //移动, src被释放
+void lept_move(lept_value* dst, lept_value* src); //移动
+void lept_swap(lept_value* lhs, lept_value* rhs); //交换
 
 void lept_free(lept_value* v); //释放动态生成的字符串所占的存储
 
